@@ -11,25 +11,27 @@
 export WORKSPACEMAX=10
 
 # Currently supports only firefox and it's mods
-export BROWSER=librewolf
+export BROWSER=firefox
 
 # Delay between "slides" in seconds
 DELAY=10
 
-if [[ ! -e "$(pwd)/include/util.sh"  ]]; then
+SCRIPTDIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
+
+if [[ ! -e "$SCRIPTDIR/include/util.sh"  ]]; then
     echo "Could not locate file: 'util.sh'"
     exit 1
 else
     # shellcheck source=./util.sh
-    source "include/util.sh"
+    source "$SCRIPTDIR/include/util.sh"
 fi
 
 # Path to directory that contains the files
 [ -z "${FILESPATH}" ] && \
     {   msg="FILESPATH env variable is left undefined.\n"
-        msg+="Will be set to '"$(pwd)/files"'"
+        msg+="Will be set to '"$SCRIPTDIR/files"'"
         warning "$msg"
-        FILESPATH="$(pwd)/files"
+        FILESPATH="$SCRIPTDIR/files"
     }
 
 [ $(ls "$FILESPATH" | wc -l) -gt $WORKSPACEMAX ] && \
