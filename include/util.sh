@@ -27,6 +27,13 @@ function getNewWorkspace {
         i3-msg "workspace $(( $CURRENT + 1 ))"
 }
 
+# Rewind video back to the beginning
+function rewindVideo {
+    # Check if there is mpv player present in current workspace, and if so
+    # press 'Down' key to rewind back one minute
+    i3-msg -t get_tree | grep -q "mpv" && xdotool key Down
+}
+
 # Open video with given filename
 function openVideo {
     FNAME="$1"
@@ -43,7 +50,8 @@ function openVideo {
     # --fs              fullscreen
     # --panscan=1.0     no clue how works, scales video to fit screen
     # --loop-file       loops video
-    mpv --really-quiet --no-audio -fs --panscan=1.0 --loop-file "$FNAME" &
+    mpv --really-quiet --no-osd-bar --no-audio -fs --panscan=1.0 --loop-file \
+        "$FNAME" &
 }
 
 function openWebpage {
@@ -79,24 +87,35 @@ function openImage {
 function parseFile {
     FILE="$1"
 
-    # Regex patterns
+    # Regex patterns for each file type
     IMAGE="(PNG|WEBP|JPEG|TIFF)"
     VIDEO="(MP4|WebM|Matroska|GIF)"
     WEBPAGE="(ASCII)"
 
+    # Create new workspace for new file
     getNewWorkspace
+
+    # Match file extensions via regex from 'file' command output to determine
+    # how each file should be opened
+
+    # Wait time in seconds. For example a web browser may take some time to
+    # load. And we want to wait some time for them to load before proceeding
+    # to open next file.
+    # If application takes more time to load than the time specified as WAIT.
+    # They may occupy the same workspace, which won't work in fullscreen apps.
+    WAIT=10
 
     EXT="$(grep -oE "$IMAGE" <<<"$(file "${FILE}")")"
     [ -n "$EXT" ] && \
-        { openImage "$FILE" && sleep 2; return ; }
+        { openImage "$FILE" && sleep $WAIT; return ; }
 
     EXT="$(grep -oE "$VIDEO" <<<"$(file "${FILE}")")"
     [ -n "$EXT" ] && \
-        { openVideo "$FILE" && sleep 2; return ; }
+        { openVideo "$FILE" && sleep $WAIT; return ; }
 
     EXT="$(grep -oE "$WEBPAGE" <<<"$(file "${FILE}")")"
     [ -n "$EXT" ] && \
-        { openWebpage "$FILE" && sleep 7; return ; }
+        { openWebpage "$FILE" && sleep $WAIT; return ; }
 }
 
 function parseFiles {
@@ -104,9 +123,13 @@ function parseFiles {
     [ ! -d "$FILESPATH" ] && \
         fatal "Directory defined in FILESPATH does not exist"
 
+    # Check if files containing directory is empty
     [ -z "$(ls -A "$FILESPATH")" ] && \
         fatal "Directory specified in FILESPATH env varaible is empty"
 
+    # Use 'find' command as for loop equivalent. Execute command for each file
+    # found in files directory. Export needed functions first for them to be 
+    # visible in new shell that the 'find' command creates
     export -f parseFile openImage openVideo openWebpage getNewWorkspace
     find "$FILESPATH" -type f -exec bash -c 'parseFile "$0"' {} \;
 }

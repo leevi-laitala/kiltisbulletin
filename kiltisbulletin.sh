@@ -7,7 +7,10 @@
 # - i3                      a window manager which workspaces are used
 # - firefox (or equivalent) as a web browser
 
-# This is the default set in "~/.config/i3/config"
+# i3 supports by default 10 workspaces, which are defined in it's configuration
+# file in ~/.config/i3/config.
+# The slideshow opens files one by one, each in their own workspace.
+# When 10 workspaces are defined, only 10 files can be included in the slideshow
 export WORKSPACEMAX=10
 
 # Currently supports only firefox and it's mods
@@ -16,8 +19,11 @@ export BROWSER=firefox
 # Delay between "slides" in seconds
 DELAY=10
 
-SCRIPTDIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
+# Rewind video back to the beginning when they are shown.
+REWINDVIDEO=1
 
+# Source functions from 'include/util.sh'
+SCRIPTDIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 if [[ ! -e "$SCRIPTDIR/include/util.sh"  ]]; then
     echo "Could not locate file: 'util.sh'"
     exit 1
@@ -34,6 +40,8 @@ fi
         FILESPATH="$SCRIPTDIR/files"
     }
 
+# Check if the number of files that are to be included in the "slideshow"
+# exceed the number of available workspaces
 [ $(ls "$FILESPATH" | wc -l) -gt $WORKSPACEMAX ] && \
     fatal "Too many files. Only $WORKSPACEMAX files can be handled currently"
 
@@ -41,10 +49,18 @@ fi
 # appropriate applications
 parseFiles
 
-# "slideshow"
+# Start "slideshow"
 while :
 do
-    i3-msg "workspace next"
+    # Got to next slide
+    i3-msg "workspace next" > /dev/null
+
+    # Rewind video if mpv player is present
+    if $REWINDVIEO; then
+        rewindVideo
+    fi
+
+    # Wait
     sleep $DELAY
 done
 
