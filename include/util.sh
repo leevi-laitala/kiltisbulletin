@@ -31,8 +31,15 @@ function getNewWorkspace {
 function rewindVideo {
     # Check if there is mpv player present in current workspace, and if so
     # press 'Down' key to rewind back one minute
-    i3-msg -t get_tree | grep -q "mpv" && xdotool key Down
+    #i3-msg -t get_tree | grep -q "mpv" && xdotool key Down
+    xdotool getwindowfocus getwindowname | grep -q "mpv" && xdotool key Down
 }
+
+# Pause and unpause video
+function videoPauseToggle {
+    xdotool getwindowfocus getwindowname | grep -q "mpv" && xdotool key space
+}
+
 
 # Open video with given filename
 function openVideo {

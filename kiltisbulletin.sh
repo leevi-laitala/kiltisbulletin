@@ -17,7 +17,7 @@ export WORKSPACEMAX=10
 export BROWSER=firefox
 
 # Delay between "slides" in seconds
-DELAY=10
+DELAY=5
 
 # Rewind video back to the beginning when they are shown.
 REWINDVIDEO=1
@@ -52,13 +52,19 @@ parseFiles
 # Start "slideshow"
 while :
 do
-    # Got to next slide
-    i3-msg "workspace next" > /dev/null
+    # Pause video if such exists, before going to next slide
+    videoPauseToggle
 
     # Rewind video if mpv player is present
     if $REWINDVIEO; then
         rewindVideo
     fi
+
+    # Got to next slide
+    i3-msg "workspace next"
+
+    # Unpause video if such exists in current workspace
+    videoPauseToggle
 
     # Wait
     sleep $DELAY
