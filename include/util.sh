@@ -1,5 +1,7 @@
 #!/bin/bash
 
+LOGFILE="/tmp/kiltisbulletin_log_$(date +'%Y-%m-%d_%H:%M').txt"
+
 # Print error and exit
 function fatal {
     # Append \t after newlines in input
@@ -7,6 +9,9 @@ function fatal {
 
     # Set color to red when printing error message
     tput setaf 1; echo -e "ERROR:\t$MSG"; tput setaf 7
+
+    echo -e "$(date +'%Y-%m-%d_%H:%M') --- ERROR: $1" >> "$LOGFILE"
+
     exit 1
 }
 
@@ -14,6 +19,8 @@ function fatal {
 function warning {
     MSG="$(echo "$1" | sed 's/\\n/\\n\\t/')"
     tput setaf 3; echo -e "WARN:\t$MSG"; tput setaf 7
+
+    echo -e "$(date +'%Y-%m-%d_%H:%M') - WARNING: $1" >> "$LOGFILE"
 }
 
 function getNewWorkspace {

@@ -32,6 +32,13 @@ else
     source "$SCRIPTDIR/include/util.sh"
 fi
 
+# Allow only one instance of the script to run
+for pid in $(pidof -x "kiltisbulletin.sh"); do
+    if [ $pid != $$ ]; then
+        fatal "Kiltisbulletin is already running"
+    fi
+done
+
 # Path to directory that contains the files
 [ -z "${FILESPATH}" ] && \
     {   msg="FILESPATH env variable is left undefined.\n"
