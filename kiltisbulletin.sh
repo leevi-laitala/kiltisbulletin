@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Requires:
-# - ImageMagick             for identify command
+# - ImageMagick             for 'identify' command
 # - sxiv                    as image preview application
 # - mpv                     as video preview application
 # - i3                      a window manager which workspaces are used
-# - firefox (or equivalent) as a web browser
+# - qutebrowser             as a web browser
 
 # i3 supports by default 10 workspaces, which are defined in it's configuration
 # file in ~/.config/i3/config.
@@ -13,13 +13,13 @@
 # When 10 workspaces are defined, only 10 files can be included in the slideshow
 export WORKSPACEMAX=10
 
-# Currently supports only firefox and it's mods
-export BROWSER=firefox
+export BROWSER=qutebrowser
 
 # Delay between "slides" in seconds
 DELAY=5
 
 # Rewind video back to the beginning when they are shown.
+# Boolean
 REWINDVIDEO=1
 
 # Source functions from 'include/util.sh'
@@ -62,10 +62,12 @@ do
     # Pause video if such exists, before going to next slide
     videoPauseToggle
 
-    # Rewind video if mpv player is present
     if $REWINDVIEO; then
+        echo "Should rewind..."
         rewindVideo
     fi
+
+    reloadWebpage
 
     # Got to next slide
     i3-msg "workspace next"
@@ -73,7 +75,6 @@ do
     # Unpause video if such exists in current workspace
     videoPauseToggle
 
-    # Wait
     sleep $DELAY
 done
 

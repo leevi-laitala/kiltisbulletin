@@ -19,8 +19,7 @@ function fatal {
 function warning {
     MSG="$(echo "$1" | sed 's/\\n/\\n\\t/')"
     tput setaf 3; echo -e "WARN:\t$MSG"; tput setaf 7
-
-    echo -e "$(date +'%Y-%m-%d_%H:%M') - WARNING: $1" >> "$LOGFILE"
+echo -e "$(date +'%Y-%m-%d_%H:%M') - WARNING: $1" >> "$LOGFILE"
 }
 
 function getNewWorkspace {
@@ -38,15 +37,27 @@ function getNewWorkspace {
 function rewindVideo {
     # Check if there is mpv player present in current workspace, and if so
     # press 'Down' key to rewind back one minute
-    #i3-msg -t get_tree | grep -q "mpv" && xdotool key Down
-    xdotool getwindowfocus getwindowname | grep -q "mpv" && xdotool key Down
+    CLASS="mpv"
+    DESKTOP=$(xprop -notype -root _NET_CURRENT_DESKTOP | awk '{print $3}')
+    xdotool search --desktop "$DESKTOP" --class "$CLASS" && xdotool key Down
+    #xdotool getactivewindow getwindowname | grep -q "mpv" && xdotool key Down && echo "Pressed Down"
+
 }
 
-# Pause and unpause video
 function videoPauseToggle {
-    xdotool getwindowfocus getwindowname | grep -q "mpv" && xdotool key space
+    CLASS="mpv"
+    DESKTOP=$(xprop -notype -root _NET_CURRENT_DESKTOP | awk '{print $3}')
+    xdotool search --desktop "$DESKTOP" --class "$CLASS" && xdotool key space
+    #xdotool getactivewindow getwindowname | grep -q "mpv" && xdotool key space && echo "Pressed space"
 }
 
+function reloadWebpage {
+    CLASS="qutebrowser"
+    DESKTOP=$(xprop -notype -root _NET_CURRENT_DESKTOP | awk '{print $3}')
+    xdotool search --desktop "$DESKTOP" --class "$CLASS" && xdotool key F5
+    #xdotool getactivewindow getwindowname | grep -q "qutebrowser" && \
+    #    xdotool key F5
+}
 
 # Open video with given filename
 function openVideo {
@@ -64,8 +75,9 @@ function openVideo {
     # --fs              fullscreen
     # --panscan=1.0     no clue how works, scales video to fit screen
     # --loop-file       loops video
+    # --pause           pause by default
     mpv --really-quiet --no-osd-bar --no-audio -fs --panscan=1.0 --loop-file \
-        "$FNAME" &
+        --pause "$FNAME" &
 }
 
 function openWebpage {
@@ -73,11 +85,7 @@ function openWebpage {
 
     URL="$(cat "$FNAME")"
 
-    # Open url in given firefox-based browser, using following flags:
-    # --kiosk           kiosk mode, basically open in fullscreen
-    # --new-window      enables multiple instances of the browser to be ran
-    #                   in different workspaces
-    $BROWSER --kiosk --new-window "$URL" &
+    $BROWSER "$URL" &
 }
 
 function openImage {

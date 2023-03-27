@@ -21,8 +21,7 @@ host system.
 - ImageMagick
 - sxiv
 - mpv
-- firefox (or equivalent)
-
+- qutebrowser
 
 ## Configuration
 
@@ -47,7 +46,8 @@ Webpages are included as URL containing text files.
 
 #### Content viewers
 
-Images are viewed using `sxiv`, videos using `mpv` and webpages using `firefox`.
+Images are viewed using `sxiv`, videos using `mpv` and webpages using 
+`qutebrowser`.
 
 These can be changed by modifying `openImage`, `openVideo` and `openWebpage`
 functions to open files in different applications.
@@ -79,6 +79,23 @@ some time when launching given viewer app.
 Wait time is defined in `parseFile` function found in `include/util.sh` file.
 By default is set as 10 seconds.
 
+#### Qutebrowser configuration
+
+To enable multiple instances of qutebrowser to run, instead of new windows
+opening as tabs, add this line to the config:
+
+```
+c.tabs.tabs_are_windows = True
+```
+
+And to disable qutebrowser tabs and address bar, include following lines in
+`.config/qutebrowser/config.py`
+
+```
+c.statusbar.show = 'never'
+c.tabs.show = 'never'
+```
+
 ## Automation
 
 #### Launch when X starts
@@ -88,7 +105,7 @@ file.
 
 #### Prevent screen from going to sleep
 
-Create `/etc/X11/xorg.conf` file with these lines included:
+Create `/etc/X11/xorg.conf` file with following `Option` lines included:
 
 ```
 Section "ServerLayout"
